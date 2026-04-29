@@ -2,6 +2,7 @@
 xcuserdata
 
 ## Xcode build artifacts
+GuyOSClient/GuyOSClient.xcframework/
 DerivedData/
 build/
 *.moved-aside

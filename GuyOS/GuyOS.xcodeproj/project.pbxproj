@@ -6,8 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8B7FE1B82FA4F61D00469A1A /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7FE1B72FA4F61D00469A1A /* AVFoundation.framework */; };
+		8BA4E55E2FA3DF2F0041AF89 /* GuyOSClient in Frameworks */ = {isa = PBXBuildFile; productRef = 8BA4E55D2FA3DF2F0041AF89 /* GuyOSClient */; };
+		8BA4E5602FA3E4CD0041AF89 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA4E55F2FA3E4CD0041AF89 /* SystemConfiguration.framework */; };
+		8BA4E5622FA3E4FE0041AF89 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA4E5612FA3E4FE0041AF89 /* Network.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8B4D4F042FA2C49B009EE423 /* GuyOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GuyOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B7FE1B72FA4F61D00469A1A /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		8BA4E55F2FA3E4CD0041AF89 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		8BA4E5612FA3E4FE0041AF89 /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,16 +33,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B7FE1B82FA4F61D00469A1A /* AVFoundation.framework in Frameworks */,
+				8BA4E5602FA3E4CD0041AF89 /* SystemConfiguration.framework in Frameworks */,
+				8BA4E55E2FA3DF2F0041AF89 /* GuyOSClient in Frameworks */,
+				8BA4E5622FA3E4FE0041AF89 /* Network.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8B043B2C2FA3D74000FE2647 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8B7FE1B72FA4F61D00469A1A /* AVFoundation.framework */,
+				8BA4E5612FA3E4FE0041AF89 /* Network.framework */,
+				8BA4E55F2FA3E4CD0041AF89 /* SystemConfiguration.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8B4D4EFB2FA2C49B009EE423 = {
 			isa = PBXGroup;
 			children = (
 				8B4D4F062FA2C49B009EE423 /* GuyOS */,
+				8B043B2C2FA3D74000FE2647 /* Frameworks */,
 				8B4D4F052FA2C49B009EE423 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +90,7 @@
 			);
 			name = GuyOS;
 			packageProductDependencies = (
+				8BA4E55D2FA3DF2F0041AF89 /* GuyOSClient */,
 			);
 			productName = GuyOS;
 			productReference = 8B4D4F042FA2C49B009EE423 /* GuyOS.app */;
@@ -94,6 +120,9 @@
 			);
 			mainGroup = 8B4D4EFB2FA2C49B009EE423;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8BA4E55C2FA3DF2F0041AF89 /* XCLocalSwiftPackageReference "../GuyOSClient" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B4D4F052FA2C49B009EE423 /* Products */;
 			projectDirPath = "";
@@ -256,6 +285,7 @@
 				DEVELOPMENT_TEAM = 6TP636VJTF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan chat ticket QR code to join a chat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +318,7 @@
 				DEVELOPMENT_TEAM = 6TP636VJTF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan chat ticket QR code to join a chat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -332,6 +363,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		8BA4E55C2FA3DF2F0041AF89 /* XCLocalSwiftPackageReference "../GuyOSClient" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../GuyOSClient;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8BA4E55D2FA3DF2F0041AF89 /* GuyOSClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = GuyOSClient;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8B4D4EFC2FA2C49B009EE423 /* Project object */;
 }

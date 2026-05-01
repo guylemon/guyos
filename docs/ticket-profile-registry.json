@@ -1,0 +1,11 @@
+{
+  "registry_schema_version": 1,
+  "profiles": [
+    {
+      "profile_id": "guyos.reference_v1",
+      "stability": "normative",
+      "defining_spec": "docs/adr/0004-ticket-profiles-and-reference-profile.md",
+      "title": "Symmetric HMAC join ticket (reference v1)"
+    }
+  ]
+}

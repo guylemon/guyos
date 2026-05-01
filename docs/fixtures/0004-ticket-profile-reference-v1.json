@@ -1,0 +1,130 @@
+{
+  "fixture_schema_version": 1,
+  "profile_id": "guyos.reference_v1",
+  "title": "Golden vectors for guyos.reference_v1",
+  "description": "Normative test inputs for the reference ticket profile defined in ADR 0004. key_hex values are test-only and must not be used in production.",
+  "vectors": [
+    {
+      "name": "ok_no_expiry",
+      "description": "Valid ticket with expires_unix = 0 (no expiry).",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDSoExnbJEAx9BZEd3J3K6zwN",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "hex_decoded_prefix": "01550e8400e29b41d4a7164466554400",
+      "expect": {
+        "kind": "ok",
+        "room_id": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    },
+    {
+      "name": "ok_with_expiry",
+      "description": "Valid ticket with non-zero expiry; now_unix strictly before expires.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAdzWUAP5T6sxxHO5tnvMgtxjqkNFi-ZOEOfxvvUadyzA9QfDh",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "ok",
+        "room_id": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    },
+    {
+      "name": "ok_expiry_boundary",
+      "description": "Valid at the inclusive boundary now_unix == expires_unix (T1).",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAaBZsYKhzuq-FZTkU61W2RqGqJcrJEYZRME6Y4Z_RArYx8pYz",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "ok",
+        "room_id": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    },
+    {
+      "name": "expired",
+      "description": "Same bytes as ok_expiry_boundary but now_unix strictly after expires_unix.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAaBZsYKhzuq-FZTkU61W2RqGqJcrJEYZRME6Y4Z_RArYx8pYz",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300001,
+      "expect": {
+        "kind": "error",
+        "code": "invalid_ticket"
+      }
+    },
+    {
+      "name": "bad_signature",
+      "description": "Correct length and layout but MAC does not verify.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDSoExnbJEAx9BZEd3J3K6zzy",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "invalid_ticket"
+      }
+    },
+    {
+      "name": "wrong_version",
+      "description": "Decoded length is 57 but version byte is not 0x01.",
+      "ticket": "AlUOhADim0HUpxZEZlVEAAAAAAAAAAAAAFX2Y_xKexlXoCqBvdEsw0KlBZfaeWPLUqmJvgKuViDF",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "ticket_decode_failed"
+      }
+    },
+    {
+      "name": "wrong_length_short",
+      "description": "Base64url decodes to fewer than 57 bytes.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDQ",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "ticket_decode_failed"
+      }
+    },
+    {
+      "name": "wrong_length_long",
+      "description": "Base64url decodes to more than 57 bytes.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDSoExnbJEAx9BZEd3J3K6zwNAA",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "ticket_decode_failed"
+      }
+    },
+    {
+      "name": "invalid_base64url_padding",
+      "description": "PAD-strict: standard Base64 padding character must not appear.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDSoExnbJEAx9BZEd3J3K6zwN=",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "ticket_decode_failed"
+      }
+    },
+    {
+      "name": "invalid_base64url_alphabet",
+      "description": "PAD-strict: only A–Z, a–z, 0–9, '-', '_' are permitted before decoding; '!' is rejected.",
+      "ticket": "AVUOhADim!HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDSoExnbJEAx9BZEd3J3K6zwN",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "ticket_decode_failed"
+      }
+    },
+    {
+      "name": "truncated_base64url",
+      "description": "Incomplete final quantum without padding; strict decoders fail before length checks.",
+      "ticket": "AVUOhADim0HUpxZEZlVEAAAAAAAAAAAAAK6COQMKFVew513p7PCoDSoExnbJEAx9BZEd3J3K6zw",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "now_unix": 1746300000,
+      "expect": {
+        "kind": "error",
+        "code": "ticket_decode_failed"
+      }
+    }
+  ]
+}

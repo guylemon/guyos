@@ -42,7 +42,7 @@ Background from the spike (non-normative history): tickets and messages were JSO
 - **Purpose:** Deliver `**protocol_major`**, `**protocol_minor`**, and the **opaque ticket string** (**J1**). The **hub** decodes the ticket and derives the **room key**; clients **MUST NOT** send decoded topic fields in place of the ticket for normative v1 attach.
 - **Version negotiation:** Occurs **only** here (**H2**).
 - **Cold start:** The **first** client→hub application frame **SHOULD** be `**attach`**; otherwise `**attach_required`** applies (see **Appendix A**).
-- **Retry after failed attach:** After `**error`** in response to `**attach`**, the client **MAY** send `**attach`** again on the **same** application stream until `**attach_ack`** or the connection closes.
+- **Retry after failed attach:** After `**error`** in response to `**attach`**, the client MAY send `**attach`** again on the **same** application stream until `**attach_ack`** or the connection closes.
 
 ### Attach acknowledgement
 
@@ -116,9 +116,9 @@ Each arrow corresponds to **application** JSON objects sent as **F1** frames (u3
 
 ### Limits (normative v1)
 
-- `**max_message_bytes`:** **65_536** — upper bound on **UTF-8 byte length** of `**text`** on `**publish`** (and `**chat_message**`).
-- `**max_frame_bytes`:** **1_048_576** — upper bound on **payload byte length** **after** the `**u32`** length prefix (the JSON body). **MUST** be **≥** the largest legal framed message (including `**publish`** / `**chat_message`** envelopes under `**max_message_bytes**`).
-- `**attach_ack**` **MUST** echo `**max_message_bytes`** and `**max_frame_bytes`** so clients need not hard-code limits.
+- `**max_message_bytes`:** **65_536** — upper bound on **UTF-8 byte length** of `**text`** on `**publish`** (and `**chat_message`**).
+- `**max_frame_bytes`:** **1_048_576** — upper bound on **payload byte length** **after** the `**u32`** length prefix (the JSON body). **MUST** be **≥** the largest legal framed message (including `**publish`** / `**chat_message`** envelopes under `**max_message_bytes`**).
+- `**attach_ack`** **MUST** echo `**max_message_bytes`** and `**max_frame_bytes`** so clients need not hard-code limits.
 
 ## Consequences
 
@@ -146,7 +146,7 @@ Each arrow corresponds to **application** JSON objects sent as **F1** frames (u3
 | `attach`       | C→S                                  | Join: `**protocol_major`**, `**protocol_minor`**, opaque `**ticket**`. Cold start: should be the first C→S frame; after `**error**` on `**attach**`, **may** retry `**attach`** on the **same** stream (**Decision**). |
 | `attach_ack`   | S→C                                  | Success after `**attach`**: `**room_id`** echo, limits, `**server_protocol_minor**`.                                                                                                                                   |
 | `publish`      | C→S                                  | Chat line + `**client_message_id**` + `**text**`. **Only** after successful `**attach`** (`**attach_ack`** received).                                                                                                  |
-| `publish_ack`  | S→C                                  | `**seq**` assignment + `**client_message_id**` echo to the **publisher** (**R3**).                                                                                                                                     |
+| `publish_ack`  | S→C                                  | `**seq`** assignment + `**client_message_id`** echo to the **publisher** (**R3**).                                                                                                                                     |
 | `chat_message` | S→C                                  | Fan-out to **non-publisher** connections (**P1**).                                                                                                                                                                     |
 | `error`        | S→C (and **may** C→S if ever needed) | `**error`** object per **E1**.                                                                                                                                                                                         |
 
@@ -166,7 +166,7 @@ Each arrow corresponds to **application** JSON objects sent as **F1** frames (u3
 | `error.code`                 | When                                                                                                             |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `protocol_major_unsupported` | Client `**attach`** `**protocol_major`** is not supported by the hub.                                            |
-| `ticket_decode_failed`       | Opaque `**ticket**` could not be **decoded** (encoding, UTF-8, parse) — **T1** syntax layer.                     |
+| `ticket_decode_failed`       | Opaque `**ticket`** could not be **decoded** (encoding, UTF-8, parse) — **T1** syntax layer.                     |
 | `invalid_ticket`             | Ticket **decoded** but **rejected** semantically (wrong shape, unknown room, etc.) — **T1**.                     |
 | `frame_too_large`            | Declared frame length **>** `**max_frame_bytes`** (length-prefix / framing layer).                               |
 | `message_too_large`          | `**text`** UTF-8 byte length **>** `**max_message_bytes`** on `**publish`**.                                     |
@@ -176,4 +176,4 @@ Each arrow corresponds to **application** JSON objects sent as **F1** frames (u3
 | `invalid_client_message_id`  | `**publish**` `**client_message_id**` is not a **canonical UUID** (**F1**).                                      |
 
 
-**Recommendations for operators:** Use `**error.message`** / `**details`** for debugging only; `**code**` is the **stable** contract.
+**Recommendations for operators:** Use `**error.message`** / `**details`** for debugging only; `**code`** is the **stable** contract.

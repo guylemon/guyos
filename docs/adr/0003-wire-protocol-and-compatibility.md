@@ -25,7 +25,7 @@ Background from the spike (non-normative history): tickets and messages were JSO
 
 ### Protocol versioning (V1, H2)
 
-- **Integers:** Each connection negotiates `**protocol_major`** and `**protocol_minor**` once, on **join / attach** (**H2**). Both sides **inherit** that pair for **all** subsequent **application** frames on that connection until disconnect.
+- **Integers:** Each connection negotiates `**protocol_major`** and `**protocol_minor`** once, on **join / attach** (**H2**). Both sides **inherit** that pair for **all** subsequent **application** frames on that connection until disconnect.
 - **Rules:**
   - **Unknown `protocol_major`** from the client → **reject** attach with `**error.code` = `protocol_major_unsupported`** (see **Appendix A**).
   - `**protocol_minor`:** **Additive** evolution only within the **same `protocol_major`**; receivers **MUST** ignore unknown JSON object keys (**P1**). **Breaking** changes require a `**protocol_major`** bump.
@@ -39,14 +39,14 @@ Background from the spike (non-normative history): tickets and messages were JSO
 
 ### Attach (join / negotiation)
 
-- **Purpose:** Deliver `**protocol_major`**, `**protocol_minor**`, and the **opaque ticket string** (**J1**). The **hub** decodes the ticket and derives the **room key**; clients **MUST NOT** send decoded topic fields in place of the ticket for normative v1 attach.
+- **Purpose:** Deliver `**protocol_major`**, `**protocol_minor`**, and the **opaque ticket string** (**J1**). The **hub** decodes the ticket and derives the **room key**; clients **MUST NOT** send decoded topic fields in place of the ticket for normative v1 attach.
 - **Version negotiation:** Occurs **only** here (**H2**).
-- **Cold start:** The **first** client→hub application frame **SHOULD** be `**attach`**; otherwise `**attach_required**` applies (see **Appendix A**).
-- **Retry after failed attach:** After `**error`** in response to `**attach**`, the client **MAY** send `**attach`** again on the **same** application stream until `**attach_ack`** or the connection closes.
+- **Cold start:** The **first** client→hub application frame **SHOULD** be `**attach`**; otherwise `**attach_required`** applies (see **Appendix A**).
+- **Retry after failed attach:** After `**error`** in response to `**attach`**, the client **MAY** send `**attach`** again on the **same** application stream until `**attach_ack`** or the connection closes.
 
 ### Attach acknowledgement
 
-- `**attach_ack**` is the **first successful** server→client application reply **after** an `**attach`** that the hub **accepts** — i.e. not necessarily after the **first** `**attach`** on that connection if earlier attempts failed with `**error**`.
+- `**attach_ack`** is the **first successful** server→client application reply **after** an `**attach`** that the hub **accepts** — i.e. not necessarily after the **first** `**attach`** on that connection if earlier attempts failed with `**error`**.
 - **Minimal normative content (A1):** Confirm success, echo the **canonical room id** string the hub uses for routing, and report **limits** relevant to this connection (see **Limits**).
 - **Non-normative:** Implementations **may** piggyback **history** or **cursor** data in the same JSON object or in **follow-up** frames; that is **not** required for interoperability of **fan-out** and **publish**.
 
@@ -67,6 +67,31 @@ Background from the spike (non-normative history): tickets and messages were JSO
 - The **publishing** connection **only** receives `**publish_ack`** for its **accepted** publishes (`**client_message_id` + `seq`**).
 - **Every other** connection in the room receives `**chat_message`** fan-out for that line.
 - The hub **MUST NOT** send `**chat_message`** **back to the publisher** for the **same** logical message (**no** hub echo of own line).
+
+### Illustrative sequence (non-normative)
+
+The figure below is **illustrative** only; **Appendix A** and the Decision bullets remain **normative**.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Pub as Publisher
+    participant Hub as Hub
+    participant Obs as Observer
+
+    Pub->>Hub: attach
+    Hub->>Pub: attach_ack
+    Obs->>Hub: attach
+    Hub->>Obs: attach_ack
+    Pub->>Hub: publish
+    Hub->>Pub: publish_ack
+    Hub->>Obs: chat_message
+    Note over Pub: No chat_message to publisher for this line (P1).
+```
+
+
+
+Each arrow corresponds to **application** JSON objects sent as **F1** frames (u32 big-endian length prefix, UTF-8 JSON body **S1**) on the QUIC bidirectional stream; see **Serialization and framing (S1, F1)**.
 
 ### `seq` in JSON (N2)
 
@@ -91,9 +116,9 @@ Background from the spike (non-normative history): tickets and messages were JSO
 
 ### Limits (normative v1)
 
-- `**max_message_bytes`:** **65_536** — upper bound on **UTF-8 byte length** of `**text`** on `**publish**` (and `**chat_message**`).
-- `**max_frame_bytes`:** **1_048_576** — upper bound on **payload byte length** **after** the `**u32`** length prefix (the JSON body). **MUST** be **≥** the largest legal framed message (including `**publish`** / `**chat_message**` envelopes under `**max_message_bytes**`).
-- `**attach_ack**` **MUST** echo `**max_message_bytes`** and `**max_frame_bytes**` so clients need not hard-code limits.
+- `**max_message_bytes`:** **65_536** — upper bound on **UTF-8 byte length** of `**text`** on `**publish`** (and `**chat_message**`).
+- `**max_frame_bytes`:** **1_048_576** — upper bound on **payload byte length** **after** the `**u32`** length prefix (the JSON body). **MUST** be **≥** the largest legal framed message (including `**publish`** / `**chat_message`** envelopes under `**max_message_bytes**`).
+- `**attach_ack**` **MUST** echo `**max_message_bytes`** and `**max_frame_bytes`** so clients need not hard-code limits.
 
 ## Consequences
 
@@ -104,7 +129,7 @@ Background from the spike (non-normative history): tickets and messages were JSO
 
 ## Open points
 
-- **Future `minor` revisions:** Optional keys (e.g. `**sender_endpoint_id`**) and **new** `**error.code`** values—receivers remain **P1**-tolerant.
+- **Future `minor` revisions:** Optional keys (e.g. `**sender_endpoint_id`**) and new `**error.code`** values—receivers remain **P1**-tolerant.
 - **Future `major` revisions:** New `**type`** values, non-JSON payloads, or ticket layout changes (**TV2**).
 
 ---
@@ -116,14 +141,14 @@ Background from the spike (non-normative history): tickets and messages were JSO
 ### v1 `type` summary
 
 
-| `type`         | Direction                            | Purpose                                                                                                                                                                                                                                |
-| -------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `attach`       | C→S                                  | Join: `**protocol_major`**, `**protocol_minor**`, opaque `**ticket**`. **Cold start:** **should** be the **first** C→S frame; **after** `**error`** on `**attach**`, **may** retry `**attach`** on the **same** stream (**Decision**). |
-| `attach_ack`   | S→C                                  | Success after `**attach`**: `**room_id**` echo, limits, `**server_protocol_minor**`.                                                                                                                                                   |
-| `publish`      | C→S                                  | Chat line + `**client_message_id**` + `**text**`. **Only** after successful `**attach`** (`**attach_ack**` received).                                                                                                                  |
-| `publish_ack`  | S→C                                  | `**seq**` assignment + `**client_message_id**` echo to the **publisher** (**R3**).                                                                                                                                                     |
-| `chat_message` | S→C                                  | Fan-out to **non-publisher** connections (**P1**).                                                                                                                                                                                     |
-| `error`        | S→C (and **may** C→S if ever needed) | `**error`** object per **E1**.                                                                                                                                                                                                         |
+| `type`         | Direction                            | Purpose                                                                                                                                                                                                                |
+| -------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `attach`       | C→S                                  | Join: `**protocol_major`**, `**protocol_minor`**, opaque `**ticket**`. Cold start: should be the first C→S frame; after `**error**` on `**attach**`, **may** retry `**attach`** on the **same** stream (**Decision**). |
+| `attach_ack`   | S→C                                  | Success after `**attach`**: `**room_id`** echo, limits, `**server_protocol_minor**`.                                                                                                                                   |
+| `publish`      | C→S                                  | Chat line + `**client_message_id**` + `**text**`. **Only** after successful `**attach`** (`**attach_ack`** received).                                                                                                  |
+| `publish_ack`  | S→C                                  | `**seq**` assignment + `**client_message_id**` echo to the **publisher** (**R3**).                                                                                                                                     |
+| `chat_message` | S→C                                  | Fan-out to **non-publisher** connections (**P1**).                                                                                                                                                                     |
+| `error`        | S→C (and **may** C→S if ever needed) | `**error`** object per **E1**.                                                                                                                                                                                         |
 
 
 ### Required keys per `type`
@@ -138,17 +163,17 @@ Background from the spike (non-normative history): tickets and messages were JSO
 ### Closed v1 `error.code` values
 
 
-| `error.code`                 | When                                                                                                                 |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `protocol_major_unsupported` | Client `**attach`** `**protocol_major**` is not supported by the hub.                                                |
-| `ticket_decode_failed`       | Opaque `**ticket**` could not be **decoded** (encoding, UTF-8, parse) — **T1** syntax layer.                         |
-| `invalid_ticket`             | Ticket **decoded** but **rejected** semantically (wrong shape, unknown room, etc.) — **T1**.                         |
-| `frame_too_large`            | Declared frame length **>** `**max_frame_bytes`** (length-prefix / framing layer).                                   |
-| `message_too_large`          | `**text**` UTF-8 byte length **>** `**max_message_bytes`** on `**publish**`.                                         |
-| `malformed_json`             | Bytes are not valid **UTF-8 JSON object** for this protocol.                                                         |
-| `unknown_message_type`       | JSON parses but `**type`** is **missing** or not a **known v1** `**type`**.                                          |
-| `attach_required`            | `**publish**` (or other C→S message) **before** successful `**attach`**, or **first** C→S frame is not `**attach`**. |
-| `invalid_client_message_id`  | `**publish**` `**client_message_id**` is not a **canonical UUID** (**F1**).                                          |
+| `error.code`                 | When                                                                                                             |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `protocol_major_unsupported` | Client `**attach`** `**protocol_major`** is not supported by the hub.                                            |
+| `ticket_decode_failed`       | Opaque `**ticket**` could not be **decoded** (encoding, UTF-8, parse) — **T1** syntax layer.                     |
+| `invalid_ticket`             | Ticket **decoded** but **rejected** semantically (wrong shape, unknown room, etc.) — **T1**.                     |
+| `frame_too_large`            | Declared frame length **>** `**max_frame_bytes`** (length-prefix / framing layer).                               |
+| `message_too_large`          | `**text`** UTF-8 byte length **>** `**max_message_bytes`** on `**publish`**.                                     |
+| `malformed_json`             | Bytes are not valid **UTF-8 JSON object** for this protocol.                                                     |
+| `unknown_message_type`       | JSON parses but `**type`** is **missing** or not a **known v1** `**type`**.                                      |
+| `attach_required`            | `**publish`** (or other C→S message) **before** successful `**attach`**, or first C→S frame is not `**attach`**. |
+| `invalid_client_message_id`  | `**publish**` `**client_message_id**` is not a **canonical UUID** (**F1**).                                      |
 
 
-**Recommendations for operators:** Use `**error.message`** / `**details**` for debugging only; `**code**` is the **stable** contract.
+**Recommendations for operators:** Use `**error.message`** / `**details`** for debugging only; `**code**` is the **stable** contract.

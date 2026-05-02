@@ -65,4 +65,3 @@ These choices **do not** replace port abstractions; they document the **first** 
 - **Hub deployment** implies **different** bootstrap configuration for **daemon** vs **client** binaries, while **one** set of layer rules applies everywhere.
 - Swapping **QUIC** libraries (e.g. away from iroh transport) requires updating **adapter and bootstrap** code, not redrawing **hexagonal** rules, as long as **ports** remain the boundary.
 - **ADR 0003** must define wire shapes and compatibility; this ADR intentionally does not.
-

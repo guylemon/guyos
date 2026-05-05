@@ -16,6 +16,7 @@ Goal: refactor (or re-implement) the `guyos_core` spike into a maintainable, tes
 - **[ADR 0002 — Hexagonal boundaries and ownership](docs/adr/0002-hexagonal-boundaries-and-ownership.md)** (layers, dependency rules, lifecycle/supervision)
 - **[ADR 0003 — Wire protocol and compatibility](docs/adr/0003-wire-protocol-and-compatibility.md)** (messages, tickets, versioning policy)
 - **[ADR 0004 — Ticket profiles and reference profile v1](docs/adr/0004-ticket-profiles-and-reference-profile.md)** (ticket profile framework, registry, reference HMAC profile, golden vectors)
+- **UniFFI → Swift bindgen (contributor exit gate):** Any commit that changes UniFFI-exported types, proc-macro export surface, or crate-level UniFFI scaffolding must regenerate Swift bindings (see [`build-ios.sh`](build-ios.sh): `uniffi-bindgen` + copy into [`GuyOSClient/Sources/GuyOSClient/guyos_core.swift`](GuyOSClient/Sources/GuyOSClient/guyos_core.swift)) and **commit** updates whenever generator output differs. Rust-only checks passing is not sufficient if Swift checksums drift. Planning detail: [`docs/planning/phase-0-module-layout.md`](docs/planning/phase-0-module-layout.md#uniffi-bindgen-exit-gate-ongoing).
 
 ---
 

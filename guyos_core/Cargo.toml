@@ -16,6 +16,9 @@ crate-type = ["cdylib", "rlib", "staticlib"]
 anyhow = "1.0.102"
 clap = { version = "4.6.1", features = ["derive"] }
 data-encoding = "2.11.0"
+hmac = "0.12.1"
+sha2 = "0.10.9"
+subtle = "2.6.1"
 bytes = "1.10.1"
 futures-lite = "2.6.1"
 iroh = "0.98.2"
@@ -27,6 +30,12 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 tokio = "1.52.1"
 uniffi = { version = "0.31", features = ["tokio", "cli"] }
+uuid = { version = "1.11", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+hex = "0.4.3"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
 
 [build-dependencies]
 uniffi = { version = "0.31", features = ["build"] }

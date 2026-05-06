@@ -1,8 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
 use guyos_core::Chat;
-use qrcode::render::unicode;
 use qrcode::QrCode;
+use qrcode::render::unicode;
 use std::collections::VecDeque;
 use std::time::Duration;
 use tokio::task::JoinHandle;
@@ -207,10 +207,7 @@ mod llm;
 
 fn render_ticket_qr(ticket: &str) -> Result<String> {
     let code = QrCode::new(ticket.as_bytes())?;
-    let qr = code
-        .render::<unicode::Dense1x2>()
-        .quiet_zone(true)
-        .build();
+    let qr = code.render::<unicode::Dense1x2>().quiet_zone(true).build();
     Ok(format!("{qr}\n"))
 }
 

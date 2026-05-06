@@ -147,13 +147,13 @@ pub(crate) async fn run_streaming_reply(
         stream: true,
     };
 
-    let mut stream = client
-        .stream_chat_completions(&cfg.base_url, req)
-        .await?;
+    let mut stream = client.stream_chat_completions(&cfg.base_url, req).await?;
 
     // Throttle partial updates.
     let mut acc = String::new();
-    let mut last_send = Instant::now().checked_sub(cfg.stream_interval).unwrap_or_else(Instant::now);
+    let mut last_send = Instant::now()
+        .checked_sub(cfg.stream_interval)
+        .unwrap_or_else(Instant::now);
     let mut sent_any_partial = false;
 
     while let Some(ev) = stream.next().await {
@@ -338,10 +338,7 @@ fn try_parse_one_sse_event(buf: &mut BytesMut) -> Option<Result<ChatCompletionsS
             Ok(v) => v,
             Err(e) => return Some(Err(e.into())),
         };
-        let delta = chunk
-            .choices
-            .get(0)
-            .and_then(|c| c.delta.content.clone());
+        let delta = chunk.choices.get(0).and_then(|c| c.delta.content.clone());
         if let Some(content) = delta {
             return Some(Ok(ChatCompletionsStreamEvent::DeltaText(content)));
         }
@@ -433,4 +430,3 @@ mod tests {
         assert_eq!(parsed.choices[0].message.content, "Hello!");
     }
 }
-

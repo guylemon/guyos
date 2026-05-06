@@ -460,14 +460,15 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 
 
+/**
+ * UniFFI-facing chat handle. Production wiring builds the real relay stack in `infrastructure::wire_chat_for_clients`.
+ */
 public protocol ChatProtocol: AnyObject, Sendable {
     
     func join(ticketStr: String) async throws 
     
     /**
-     * Receive the next incoming chat message.
-     *
-     * This is a pull-based API (no callback interface), which avoids Swift callback vtables.
+     * Receive the next incoming chat message (pull-based API for Swift).
      */
     func nextMessage() async  -> ChatMessage?
     
@@ -476,6 +477,9 @@ public protocol ChatProtocol: AnyObject, Sendable {
     func send(text: String) async throws 
     
 }
+/**
+ * UniFFI-facing chat handle. Production wiring builds the real relay stack in `infrastructure::wire_chat_for_clients`.
+ */
 open class Chat: ChatProtocol, @unchecked Sendable {
     fileprivate let handle: UInt64
 
@@ -515,6 +519,12 @@ open class Chat: ChatProtocol, @unchecked Sendable {
     public func uniffiCloneHandle() -> UInt64 {
         return try! rustCall { uniffi_guyos_core_fn_clone_chat(self.handle, $0) }
     }
+    /**
+     * Bounded buffer so an unresponsive UI cannot grow memory without bound.
+     * If this fills up, the receive loop will naturally apply backpressure.
+     *
+     * Uses `infrastructure::wire_chat_for_clients` for production composition.
+     */
 public convenience init(name: String?) {
     let handle =
         try! rustCall() {
@@ -555,9 +565,7 @@ open func join(ticketStr: String)async throws   {
 }
     
     /**
-     * Receive the next incoming chat message.
-     *
-     * This is a pull-based API (no callback interface), which avoids Swift callback vtables.
+     * Receive the next incoming chat message (pull-based API for Swift).
      */
 open func nextMessage()async  -> ChatMessage?  {
     return
@@ -659,6 +667,9 @@ public func FfiConverterTypeChat_lower(_ value: Chat) -> UInt64 {
 
 
 
+/**
+ * One chat message delivered to app/UI code (UniFFI record; defined in `domain`).
+ */
 public struct ChatMessage: Equatable, Hashable {
     public var id: String
     public var from: String
@@ -960,19 +971,19 @@ private let initializationResult: InitializationResult = {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if (uniffi_guyos_core_checksum_method_chat_join() != 29548) {
+    if (uniffi_guyos_core_checksum_method_chat_join() != 40275) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_guyos_core_checksum_method_chat_next_message() != 47978) {
+    if (uniffi_guyos_core_checksum_method_chat_next_message() != 4505) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_guyos_core_checksum_method_chat_open() != 53328) {
+    if (uniffi_guyos_core_checksum_method_chat_open() != 28804) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_guyos_core_checksum_method_chat_send() != 1705) {
+    if (uniffi_guyos_core_checksum_method_chat_send() != 10872) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_guyos_core_checksum_constructor_chat_new() != 8126) {
+    if (uniffi_guyos_core_checksum_constructor_chat_new() != 41750) {
         return InitializationResult.apiChecksumMismatch
     }
 

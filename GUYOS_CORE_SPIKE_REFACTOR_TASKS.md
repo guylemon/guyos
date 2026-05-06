@@ -39,8 +39,6 @@ Goal: refactor (or re-implement) the `guyos_core` spike into a maintainable, tes
   - Done when: the crate builds, and the publicly supported API is exposed through an intentional, documented module boundary (reviewable without relying on a particular file name).
 - **Define the “composition root”**
   - Done when: there is exactly one documented wiring/composition site that binds concrete adapters to application services; all inbound entrypoints and the CLI resolve dependencies through it (verifiable by module structure or an architecture/check test).
-- **Thin process entrypoints**
-  - Done when: binary entrypoints contain only bootstrap concerns (arguments, signals, wiring selection, calls into the application API); automated or manual review shows business rules, wire handling, and LLM orchestration are not entrypoint-only (e.g. covered by application/domain tests or forbidden-dep checks).
 
 ---
 
@@ -169,6 +167,9 @@ Do **ADR 0003** framing/DTOs and **ADR 0004** tickets **before** treating the QU
 
 - **Move all LLM relay ownership into the library/application**
   - Done when: the CLI entrypoint forwards configuration and renders streamed events only; session history, retry/abort policy, and LLM orchestration live in application services and are covered by library tests—not CLI-only code.
+- **Thin CLI process entrypoint (`main` and sibling `[[bin]]` targets when added)**
+  - Done when: the CLI binary contains only bootstrap concerns (arguments, signals, wiring selection, calls into the application API); automated or manual review shows business rules, wire handling, and LLM orchestration are not entrypoint-only (e.g. covered by application/domain tests or forbidden-dep checks).
+  - **Ordering note:** treat this as the **capstone** for the CLI shape once **LLM behavior is behind the outbound LLM port** (Phase 2) and **relay/orchestration** lives in **application** (this bullet and the one above)—so the work sequence stays **ports → application → thin `main`**, without front-running Phase 0 composition work.
 - **Keep CLI bootstrap shared with other entrypoints**
   - Done when: CLI, daemon, and FFI-driven processes share one documented bootstrap path (composition + config) with only the adapter set and configuration differing; smoke or architecture checks prove duplicate wiring sites are absent.
 
@@ -258,7 +259,7 @@ Roll-up of compatibility obligations from [ADR 0003](docs/adr/0003-wire-protocol
 
 Follows [Implementation ordering (hybrid)](#implementation-ordering-hybrid): **ADR 0002** layer spine, with **ADR 0003** / **ADR 0004** relay-plane work **started early** (shared codecs + fixtures), **before** treating the FFI binding or QUIC stack as the sole proof of correctness.
 
-- **Step 1**: Module skeleton, composition root, and thin binary entrypoints.
+- **Step 1**: Module skeleton and composition root; **thin CLI `main`** follows **Phase 5 — CLI** (after LLM port + application relay ownership land).
 - **Step 2**: Domain extraction, domain error model, and invariants (aligned with ADR 0003 field semantics where they touch the model).
 - **Step 3**: Port traits (network, LLM, single canonical inbound facade per [ADR 0002](docs/adr/0002-hexagonal-boundaries-and-ownership.md)) **and begin** ADR 0003 framing/DTOs and ADR 0004 ticket decode **in parallel** with stub or partial application wiring—iterate until fixtures pass.
 - **Step 4**: Client application service and daemon hub service fully driven by **fakes**; include **multi-client / same-room** unit coverage; keep DTOs and hub logic aligned with normative JSON and ticket behavior.

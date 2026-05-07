@@ -2,6 +2,10 @@
 
 pub mod reference_ticket_v1;
 
+pub(crate) mod guyos_wire_attach;
+pub(crate) mod guyos_wire_publish;
+pub(crate) mod guyos_wire_v1;
+
 /// One chat message delivered to app/UI code (UniFFI record; defined in `domain`).
 #[derive(Clone, Debug, uniffi::Record)]
 pub struct ChatMessage {
